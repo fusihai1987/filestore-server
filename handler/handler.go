@@ -1,11 +1,15 @@
 package handler
 
 import (
+	"FILESTORE-SERVER/meta"
+	"FILESTORE-SERVER/utils"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"time"
 )
 
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
@@ -17,7 +21,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		io.WriteString(w,string(uploadHtml))
+		io.WriteString(w, string(uploadHtml))
 	}else if r.Method == "POST"{
 		file,header, err :=  r.FormFile("file")
 
@@ -27,7 +31,13 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
-		localFile, err := os.Create("./tmp/"  + header.Filename)
+		fileMeta := meta.FileMeta{
+			FileName: header.Filename,
+			FilePath: "./tmp/" + header.Filename,
+			UpdatedAt: time.Now().Format("2006-1-2 15:04:05"),
+		}
+
+		localFile, err := os.Create(fileMeta.FilePath)
 
 		if err != nil{
 			fmt.Println("Failed to create file:%s\n", err.Error())
@@ -35,18 +45,36 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		defer localFile.Close()
 
-		_, err = io.Copy(localFile, file)
+		fileMeta.FileSize, err = io.Copy(localFile, file)
 
 		if err != nil{
 			fmt.Println("Failed to save file :%s\n", err.Error())
 			return
 		}
+		localFile.Seek(0,0)
+		fileMeta.FileSha1 = utils.FileSha1(localFile)
+		meta.Update(fileMeta)
 
-		io.WriteString(w,fmt.Sprintf("{\"code\":200, \"msg\":success,\"url\":/tmp/%s}", header.Filename))
+		fileMetaJson , err := json.Marshal(fileMeta)
+
+		if err != nil {
+			fmt.Println("Failed to json marsha1 err:%s", err.Error())
+		}
+		io.WriteString(w,fmt.Sprintf("{\"code\":200, \"msg\":success,\"file\":%s}", string(fileMetaJson)))
 	}
 
 }
 
+func QueryFile(w http.ResponseWriter, r *http.Request){
+	fileSha1 := r.URL.Query()
+	fileMeta := meta.GetFile(fileSha1["filesha1"][0])
+	fileMetaJson, err := json.Marshal(fileMeta)
+
+	if err != nil {
+		fmt.Println("Failed to json marsha1 err:%s", err.Error())
+	}
+	w.Write(fileMetaJson)
+}
 func SucHandler(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Success")
 }
