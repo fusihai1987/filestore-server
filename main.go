@@ -18,7 +18,5 @@ func main(){
 	if err != nil {
 		fmt.Println("Failed to start server: %s", err.Error())
 	}
-
-
 }
 

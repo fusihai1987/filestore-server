@@ -67,14 +67,29 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 
 func QueryFile(w http.ResponseWriter, r *http.Request){
 	fileSha1 := r.URL.Query()
-	fileMeta := meta.GetFile(fileSha1["filesha1"][0])
+	//fileMeta := meta.GetFile(fileSha1["filesha1"][0])
+	file,err := meta.GetFileDb(fileSha1["filesha1"][0])
+	fmt.Println("sha1" + fileSha1["filesha1"][0])
+	if err != nil {
+		fmt.Printf("Failed to get file meta:%s", err.Error())
+	}
+
+	fileMeta := meta.FileMeta{
+		FileName:file.FileName.String,
+		FileSha1:file.FileSha1.String,
+		FileSize:file.FileSize.Int64,
+		FilePath:file.FilePath.String,
+	}
+
 	fileMetaJson, err := json.Marshal(fileMeta)
 
+
 	if err != nil {
-		fmt.Println("Failed to json marsha1 err:%s", err.Error())
+		fmt.Printf("Failed to json marsha1 err:%s", err.Error())
 	}
 	w.Write(fileMetaJson)
 }
+
 func SucHandler(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Success")
 }
