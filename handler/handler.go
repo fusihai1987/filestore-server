@@ -75,10 +75,10 @@ func QueryFile(w http.ResponseWriter, r *http.Request){
 	}
 
 	fileMeta := meta.FileMeta{
-		FileName:file.FileName.String,
-		FileSha1:file.FileSha1.String,
-		FileSize:file.FileSize.Int64,
-		FilePath:file.FilePath.String,
+		FileName: file.FileName.String,
+		FileSha1: file.FileSha1.String,
+		FileSize: file.FileSize.Int64,
+		FilePath: file.FilePath.String,
 	}
 
 	fileMetaJson, err := json.Marshal(fileMeta)

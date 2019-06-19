@@ -1,3 +1,5 @@
+CREATE DATABASE IF NOT EXISTS fileserver DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+
 CREATE TABLE `file_metas`(
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `file_name` VARCHAR(256) NOT NULL DEFAULT '' COMMENT '文件名',
@@ -14,5 +16,13 @@ CREATE TABLE `file_metas`(
   key `idx_status` (`status`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='文件元数据';
 
+CREATE TABLE `user`(
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `user_name` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '用户名',
+    `user_pwd` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '密码',
+    `token` CHAR(128) NOT NULL DEFAULT '' COMMENT '登录token',
+    `created_at` datetime default NOW() COMMENT '创建时间',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户信息';
 
 
