@@ -1,5 +1,7 @@
 CREATE DATABASE IF NOT EXISTS fileserver DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
 
+use fileserver;
+
 CREATE TABLE `file_metas`(
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `file_name` VARCHAR(256) NOT NULL DEFAULT '' COMMENT '文件名',
@@ -9,6 +11,7 @@ CREATE TABLE `file_metas`(
   `created_at` datetime default NOW() COMMENT '创建日期',
   `updated_at` datetime default NOW() on update current_timestamp() COMMENT '更新时间',
   `status` int(11) NOT NULL DEFAULT '0' COMMENT '状态(可用/禁用/删除)',
+  `username` varchar(255) NOT NULL DEFAULT '用户名',
   `ext1` int(11) DEFAULT '0' COMMENT '备用字段1',
   `ext2` text COMMENT '备用字段2',
   PRIMARY KEY (`id`),

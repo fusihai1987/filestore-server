@@ -1,5 +1,6 @@
 <html>
 <head>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
 </head>
 
 <body style="width:100%;height:100%;text-align:center;">
@@ -9,7 +10,7 @@
         用户注册
     </div>
     <div style="width:60%;height:30%;text-align:center;margin: 50px auto;">
-        <form id="sinup" action="#" method="post">
+        <form>
             <!-- <input id="file" name="file" type="file" class="file" data-msg-placeholder="选择文件"> -->
             <input id="username" type="text" name="file" />用户名
             <input id="password" type="text" >密码
@@ -22,15 +23,26 @@
 <script lang="javascript">
     function signUp(){
         var signupUrl = "/user/signup";
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
 
-        var fd = new FormData();
-
-        fd.append("username", document.getElementById("username"));
-        fd.append("user_pwd", document.getElementById("password"));
-        var xhr = new XMLHttpRequest();
-        xhr.addEventListener("load", uploadComplete, false);
-        xhr.open("POST", signupUrl);
-        xhr.send(fd);
+        $.ajax({
+            url:signupUrl,
+            type:"POST",
+            data:{
+                "username": username,
+                "password": password,
+            },
+            success:function(result){
+                if(result == 'SUCCESS'){
+                    setTimeout(() => {
+                        window.location.href = '/static/views/signin.html';
+                    }, 2000);
+                }else{
+                    alert('注册失败!');
+                }
+            }
+        });
     }
 
     function uploadComplete(evt){

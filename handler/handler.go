@@ -58,7 +58,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		fileMetaJson , err := json.Marshal(fileMeta)
 
 		if err != nil {
-			fmt.Println("Failed to json marsha1 err:%s", err.Error())
+			fmt.Printf("Failed to json marsha1 err:%s", err.Error())
 		}
 		io.WriteString(w,fmt.Sprintf("{\"code\":200, \"msg\":success,\"file\":%s}", string(fileMetaJson)))
 	}

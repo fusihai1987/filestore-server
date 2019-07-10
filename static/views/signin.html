@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+</head>
+
+<body style="width:100%;height:100%;text-align:center;">
+<div style="width:100%;height:100%;margin:0 0 10px 0;text-align: center;">
+    <div style="font-size:20px;font-weight:bold;color:#ddd;
+      margin:0;padding-top:3px;background:#383e4b;height:40px;">
+        用户注册
+    </div>
+    <div style="width:60%;height:30%;text-align:center;margin: 50px auto;">
+        <form>
+            <!-- <input id="file" name="file" type="file" class="file" data-msg-placeholder="选择文件"> -->
+            <input id="username" type="text" name="file" />用户名
+            <input id="password" type="text" >密码
+            <input type="button" value="点击登录" onclick="signIn()">
+        </form>
+    </div>
+</div>
+</body>
+
+<script lang="javascript">
+    function signIn(){
+        var signupUrl = "/user/signin";
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+
+        $.ajax({
+            url:signupUrl,
+            type:"POST",
+            data:{
+                "username": username,
+                "password": password,
+            },
+            success:function(result){
+                console.log(result);
+                data = JSON.parse(result);
+                if(data.Code == 0){
+                    localStorage.setItem("username",data.Data.Username);
+                    localStorage.setItem("token", data.Data.Token);
+                    setTimeout(() => {
+                        window.location.href = data.Data.Location;
+                    }, 2000);
+                }else{
+                    alert('注册失败!');
+                }
+            }
+        });
+    }
+
+    function uploadComplete(evt){
+        alert(evt.target.responseText);
+    }
+</script>
+
+</html>

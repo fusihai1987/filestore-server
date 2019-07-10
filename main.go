@@ -4,15 +4,17 @@ import (
 	"FILESTORE-SERVER/handler"
 	"fmt"
 	"net/http"
-	"FILESTORE-SERVER/db/mysql"
 )
 
 func main(){
+	http.Handle("/static/",
+		http.StripPrefix("/static/",http.FileServer(http.Dir("./static"))))
 	http.HandleFunc("/file/upload", handler.UploadHandler)
 	http.HandleFunc("/file/success", handler.SucHandler)
 	http.HandleFunc("/file/query",handler.QueryFile)
 	http.HandleFunc("/user/signup",  handler.SignUpHandler)
-	mysql.GetDb()
+	http.HandleFunc("/user/signin", handler.SignInHandler)
+	http.HandleFunc("/user/info", handler.HttpMiddle(handler.QueryUserInfo))
 
 	err := http.ListenAndServe(":8089", nil)
 
