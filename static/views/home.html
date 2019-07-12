@@ -100,14 +100,15 @@
                     return;
                 }
                 var data = JSON.parse(body);
-                if (!data || data.length <= 0) {
+                if (!data || data.Data.length <= 0) {
                     return;
                 }
-
+                console.log(data);
+                data = data.Data;
                 for (var i = 0; i < data.length; i++) {
                     var x = document.getElementById('filetbl').insertRow();
                     var cell = x.insertCell();
-                    cell.innerHTML = data[i].FileHash.substr(0, 20) + "...";
+                    cell.innerHTML = data[i].FileSha1.substr(0, 20) + "...";
 
                     cell = x.insertCell();
                     cell.innerHTML = data[i].FileName;
@@ -116,10 +117,10 @@
                     cell.innerHTML = data[i].FileSize;
 
                     cell = x.insertCell();
-                    cell.innerHTML = data[i].UploadAt;
+                    cell.innerHTML = data[i].UpdatedAt;
 
                     cell = x.insertCell();
-                    cell.innerHTML = data[i].LastUpdated;
+                    cell.innerHTML = data[i].UpdatedAt;
                 }
             }
         });

@@ -29,3 +29,19 @@ CREATE TABLE `user`(
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户信息';
 
 
+CREATE TABLE `tbl_user_file`(
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `user_name` varchar(64) NOT NULL,
+    `file_sha1` varchar(64) NOT NULL DEFAULT '' COMMENT '文件hash',
+    `file_name` varchar(256) NOT NULL DEFAULT '' COMMENT '文件名',
+    `file_size` bigint  NOT NULL DEFAULT 0 COMMENT '文件大小',
+    `uploaded_at` datetime default CURRENT_TIMESTAMP COMMENT '上传时间',
+    `updated_at` datetime DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `status` int(11) NOT NULL DEFAULT '0' COMMENT '文件状态（0删除，1正常，2禁用)',
+    PRIMARY KEY (`id`),
+    unique key `id_user_file` (`user_name`, `file_sha1`),
+    KEY `id_status` (`status`),
+    KEY `id_user_id` (`user_name`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+

@@ -16,4 +16,7 @@ const (
 	StatusLoginFailed
 	// StatusInvalidToken : 10005 token无效
 	StatusInvalidToken
+
+	// StatusQueryError : 10006 查询失败
+	StatusQueryError
 )

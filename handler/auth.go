@@ -2,6 +2,7 @@ package handler
 
 import (
 	"FILESTORE-SERVER/common"
+	"fmt"
 	"net/http"
 )
 
@@ -10,7 +11,8 @@ func HttpMiddle(h http.HandlerFunc) http.HandlerFunc{
 		r.ParseForm()
 		username := r.Form.Get("username")
 		token := r.Form.Get("token")
-
+		fmt.Println("token:",token)
+		fmt.Println("username:",username)
 		if len(username)<3 || !IsValidToken(token) {
 			resp := common.NewResp(
 				int(common.StatusInvalidToken),
