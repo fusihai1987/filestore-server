@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"FILESTORE-SERVER/meta"
-	"FILESTORE-SERVER/utils"
+	"filestore-server/meta"
+	"filestore-server/utils"
 	"encoding/json"
-	"FILESTORE-SERVER/db"
-	"FILESTORE-SERVER/common"
+	"filestore-server/db"
+	"filestore-server/common"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -99,7 +99,8 @@ func FastUploadHandler(w http.ResponseWriter, r *http.Request){
 	}
 
 	if file == nil {
-		w.Write(common.NewResp(-1, "秒传失败,请访问普通接口上传！", nil).JsonBytes())
+		resp := common.NewResp(-1, "秒传失败,请访问普通接口上传！", nil)
+		w.Write(resp.JsonBytes())
 		return
 	}
 
@@ -112,10 +113,12 @@ func FastUploadHandler(w http.ResponseWriter, r *http.Request){
 	})
 
 	if suc {
-		w.Write(common.NewResp(0, "SUCCESS", nil).JsonBytes())
+		resp := common.NewResp(0, "SUCCESS", nil)
+		w.Write(resp.JsonBytes())
 		return
 	}else{
-		w.Write(common.NewResp(-2, "上传失败,请稍后再试!", nil).JsonBytes())
+		resp := common.NewResp(-2, "上传失败,请稍后再试!", nil)
+		w.Write(resp.JsonBytes())
 		return
 	}
 

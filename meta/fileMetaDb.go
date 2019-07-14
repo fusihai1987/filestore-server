@@ -1,7 +1,7 @@
 package meta
 
 import (
-	"FILESTORE-SERVER/db/mysql"
+	"filestore-server/db/mysql"
 	"database/sql"
 	"fmt"
 )

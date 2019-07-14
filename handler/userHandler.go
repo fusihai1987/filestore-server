@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"FILESTORE-SERVER/common"
-	"FILESTORE-SERVER/db"
-	"FILESTORE-SERVER/utils"
+	"filestore-server/common"
+	"filestore-server/db"
+	"filestore-server/utils"
 	"fmt"
 	"net/http"
 	"time"

@@ -11,8 +11,8 @@ type Resp struct {
 	Data interface{}
 }
 
-func NewResp(code int, msg string, data interface{}) Resp{
-	return Resp{
+func NewResp(code int, msg string, data interface{}) *Resp{
+	return &Resp{
 		Code: code,
 		Msg: msg,
 		Data: data,

@@ -9,7 +9,7 @@ import (
 var (
 	pool *redis.Pool
 	redisHost = "127.0.0.1:6379"
-	redisPass = "test_redis"
+	redisPass = "123456"
 )
 
 func newRedisPool() *redis.Pool {
@@ -27,7 +27,7 @@ func newRedisPool() *redis.Pool {
 			}
 
 			//2 访问认证
-			if _, err = c.Do("AUTH", redisPass); err != nil {
+			if _, err = conn.Do("AUTH", redisPass); err != nil {
 				conn.Close()
 				return nil, err
 			}

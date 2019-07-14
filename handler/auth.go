@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"FILESTORE-SERVER/common"
+	"filestore-server/common"
 	"fmt"
 	"net/http"
 )
