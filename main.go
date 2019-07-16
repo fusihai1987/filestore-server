@@ -16,7 +16,9 @@ func main(){
 	http.HandleFunc("/user/signin", handler.SignInHandler)
 	http.HandleFunc("/user/info", handler.HttpMiddle(handler.QueryUserInfo))
 	http.HandleFunc("/file/fastupload", handler.HttpMiddle(handler.FastUploadHandler))
-	http.HandleFunc("/file/mupload",handler.HttpMiddle(handler.InitUploadInfo))
+	http.HandleFunc("/file/initupload",handler.HttpMiddle(handler.InitUploadInfo))
+	http.HandleFunc("/file/mupload", handler.HttpMiddle(handler.MartiUploadHandle))
+	http.HandleFunc("/file/completeupload", handler.HttpMiddle(handler.CompeteUploadHandler))
 
 	err := http.ListenAndServe(":8089", nil)
 

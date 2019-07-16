@@ -7,13 +7,14 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"path"
+	"sort"
 	"strconv"
 	"time"
 	"os"
 	"strings"
 	"filestore-server/meta"
 	"filestore-server/db"
-	"os/user"
 )
 
 type multipartFileInfo struct {
@@ -28,21 +29,22 @@ type multipartFileInfo struct {
 func InitUploadInfo(w http.ResponseWriter, r *http.Request){
 	//1 解析前端参数
 	r.ParseForm()
-	fileHash := r.Form.Get("file_hash")
+	fileHash := r.Form.Get("filehash")
 	username := r.Form.Get("username")
-	fileSize, _:= strconv.ParseInt(r.Form.Get("file_size"), 10, 64)
+	fileSize, _:= strconv.ParseInt(r.Form.Get("filesize"), 10, 64)
+
 
 
 	multiInfo := multipartFileInfo{
 		FileHash:fileHash,
 		FileSize:fileSize,
 		UploadId:username + fmt.Sprintf("%x", time.Now().Unix()),
-		ChunkCount: int(math.Ceil(float64(fileSize/(5*1024*1024)))),
-		ChunkSize:int64(5*1024*1024),
+		ChunkCount: int(math.Ceil(float64(float32(fileSize)/float32((5*1024*1024))))),
+		ChunkSize: int64(5*1024*1024),
 	}
 	fmt.Println("uploadId",multiInfo.UploadId)
 	fmt.Println("chunksize",multiInfo.ChunkSize)
-
+	fmt.Println("chunkcount", multiInfo.ChunkCount)
 	//3 生成缓存
 	redisConn := redis.RedisPool().Get()
 	defer redisConn.Close()
@@ -65,29 +67,31 @@ func MartiUploadHandle(w http.ResponseWriter, r *http.Request){
 	uploadId := r.Form.Get("uploadid")
 
 	//2 创建目录
-	path := "/Users/fusihai/data/" + uploadId +"/" + chunkIndex
-	err := os.MkdirAll(path, 0744)
+	fpath := "/d/" + uploadId +"/" + chunkIndex
+	err := os.MkdirAll(path.Dir(fpath), 0744)
 	if err != nil {
 		w.Write(common.NewResp(-1,"mkdir err", nil).JsonBytes())
 		return
 	}
-	fp, err := os.Create(path)
+	fp, err := os.Create(fpath)
 
 	if err!= nil {
-		w.Write(common.NewResp(-1,"create err", nil).JsonBytes())
+		w.Write(common.NewResp(-1,"create err" + err.Error(), nil).JsonBytes())
 		return
 	}
 	defer fp.Close()
 
-	buf := make([]byte, 1024*1024)
+	buf := make([]byte,1024*1024)
+	offset := int64(0)
 	for {
 		n, err := r.Body.Read(buf)
 
+		fp.WriteAt(buf[:n], int64(offset))
+		offset += int64(n)
 		if err != nil {
 			break
 		}
 
-		fp.Write(buf[:n])
 	}
 
 	//3 缓存index
@@ -120,30 +124,68 @@ func CompeteUploadHandler(w http.ResponseWriter,r *http.Request){
 
 	totalChunkCnt := 0
 	chunkCnt := 0
+	chunkFiles := make([]int,0)
 	for i:=0; i < len(data); i+=2 {
 		k := string(data[i].([]byte))
 		v := string(data[i + 1].([]byte))
-
-		if k == "checkout"{
+		fmt.Printf("K:%s,V:%s\n", k, v)
+		if k == "chunkCount"{
 			totalChunkCnt, _= strconv.Atoi(v)
 		}else if(strings.HasPrefix(k,"CHUNK_INDEX") && v == "1"){
 			chunkCnt += 1
+			file , _ := strconv.Atoi(strings.TrimPrefix(k,"CHUNK_INDEX"))
+			chunkFiles = append(chunkFiles, file)
 		}
 
 	}
 
-	progress := float32(chunkCnt/totalChunkCnt)
 	if totalChunkCnt != chunkCnt {
-		w.Write(common.NewResp(-2,"Unfinished",struct{Progress float32}{Progress:progress}).JsonBytes())
+		w.Write(common.NewResp(-2,"Invalid parameter",nil).JsonBytes())
 		return
 	}
 	// 3 合并文件
+	path := "/d/" + uploadid
+	err = mergeFiles(path, chunkFiles, filename)
 
+	if err != nil {
+		w.Write(common.NewResp(-1,fmt.Sprintf("文件合并失败:%s",err.Error()),nil).JsonBytes())
+		return
+	}
 	// 4 写入文件和用户文件
 	_ = meta.Insert(meta.FileMeta{FileName:filename,FileSha1:filehash,FileSize:filesize})
-	_ = db.Insert(db.UserFile{UserName:username,FileSha1:filehash,FileSize:filesize,FileName:filename})
+	_ = db.Insert(db.UserFile{UserName:username,FileSha1:filehash,FileSize:filesize,FileName:filename,
+		UploadedAt:time.Now().Format("2006-1-2 15:04:05"),UpdatedAt:time.Now().Format("2006-1-2 15:04:05")})
 	
 	// 5
 	w.Write(common.NewResp(0,"OK",nil).JsonBytes())
+}
+
+func mergeFiles(path string,files []int, targetFileName string) error{
+
+	targetFile,err := os.Create(path + "/" + targetFileName)
+	fmt.Println("path:",path + "/" + targetFileName)
+	defer targetFile.Close()
+	if err != nil {
+		return err
+	}
+
+	sort.Ints(files)
+	buf := make([]byte, 5*1024*1024)
+	offset := 0
+	for _, file := range files {
+		chunFile := path + "/" + strconv.Itoa(file)
+		fchunk, err := os.Open(chunFile)
+		defer fchunk.Close()
+
+		if err != nil {
+			return err
+		}
+		n,_ := fchunk.Read(buf)
+		targetFile.WriteAt(buf[:n], int64(offset))
+
+		offset += n
+	}
+
+	return nil
 }
 

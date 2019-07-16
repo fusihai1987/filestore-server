@@ -156,21 +156,12 @@ func QueryFile(w http.ResponseWriter, r *http.Request){
 	if err != nil {
 		fmt.Println(err.Error())
 
-		resp := common.NewResp(
-				int(common.StatusQueryError),
-				err.Error(),
-				nil,
-			)
-		w.Write(resp.JsonBytes())
+
+		w.Write(common.NewResp(int(common.StatusQueryError), err.Error(), nil, ).JsonBytes())
 		return
 	}
 
-	resp := common.NewResp(
-			0,
-			"SUCCESS",
-			ufiles,
-		)
-	w.Write(resp.JsonBytes())
+	w.Write(common.NewResp(0, "SUCCESS", ufiles, ).JsonBytes())
 }
 
 func SucHandler(w http.ResponseWriter, r *http.Request) {

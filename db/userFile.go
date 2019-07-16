@@ -24,6 +24,7 @@ func Insert(userFile UserFile) bool {
 		return false
 	}
 
+
 	res ,err := stmt.Exec(userFile.UserName,userFile.FileSha1,userFile.FileName,userFile.FileSize,userFile.UploadedAt,userFile.UpdatedAt)
 
 	if err != nil {

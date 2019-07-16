@@ -87,12 +87,7 @@ func QueryUserInfo(w http.ResponseWriter, r *http.Request){
 	}
 
 
-	resp := common.NewResp(
-			0,
-			"SUCCESS",
-				 userInfo,
-		)
-	w.Write(resp.JsonBytes())
+	w.Write(common.NewResp(0, "SUCCESS", userInfo, ).JsonBytes())
 }
 
 // GenToken : 生成token
