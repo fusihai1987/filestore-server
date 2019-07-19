@@ -170,6 +170,7 @@ func mergeFiles(path string,files []int, targetFileName string) error{
 	}
 
 	sort.Ints(files)
+	
 	buf := make([]byte, 5*1024*1024)
 	offset := 0
 	for _, file := range files {
@@ -182,10 +183,12 @@ func mergeFiles(path string,files []int, targetFileName string) error{
 		}
 		n,_ := fchunk.Read(buf)
 		targetFile.WriteAt(buf[:n], int64(offset))
+		fchunk.Close()
+
+		os.Remove(chunFile)
 
 		offset += n
 	}
-
 	return nil
 }
 

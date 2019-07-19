@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"filestore-server/config"
 	"fmt"
 	"github.com/garyburd/redigo/redis"
 	"time"
@@ -8,8 +9,8 @@ import (
 
 var (
 	pool *redis.Pool
-	redisHost = "127.0.0.1:6379"
-	redisPass = "123456"
+	redisHost = config.RedisHost
+	redisPass = config.ReidsPass
 )
 
 func newRedisPool() *redis.Pool {
